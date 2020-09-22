@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use Illuminate\Support\Facades\DB;
+use App\User;
+
 abstract class Provider { 
 
     /**
@@ -19,6 +22,11 @@ abstract class Provider {
      * json file in complex read
      */
     protected $skip;
+
+    /**
+     * Provider name
+     */
+    protected $name;
 
     /**
      * Read json file content
@@ -76,6 +84,48 @@ abstract class Provider {
         return $usersList;
     }
 
-    public abstract function saveImport(); 
-    public abstract function validate(); 
+    public function saveImport()
+    {
+        return DB::transaction(function () {
+
+                $users = $this->read();
+                $users = $users['users'];
+                
+                foreach ($users as $key => $user) {
+                    $validator = $this->validate($user);
+
+                    if ($validator->fails()) {
+                        //log error something wrong with 
+                        //file
+                    } else {
+                        $user['provider'] = $this->name;
+                        User::create($this->transfer($user));
+                    }
+                }
+        });
+        
+    }
+
+    public abstract function validate($user);
+    
+    public abstract function transfer($user);
+
+    public function getStatus($code)
+    {
+        /**
+         * Better to be Enum 
+         * but need to find solution for duplicates 
+         *
+         */
+        $codes = [
+            1 => "authorised",
+            2 => "decline",
+            3 => "refunded",
+            100 => "authorised",
+            200 => "decline",
+            300 => "refunded",
+        ];
+
+        return $codes[$code];
+    }
  }  

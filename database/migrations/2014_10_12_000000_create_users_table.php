@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('currency');
             $table->enum('status', ['authorised', 'decline', 'refunded']);
             $table->date('registeration');
+            $table->string('provider');
             $table->timestamps();
         });
     }

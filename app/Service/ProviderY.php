@@ -3,21 +3,37 @@
 namespace App\Service;
 
 use App\Service\Provider;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ProviderY extends Provider
 {
-    public  function read()
+    protected $path = "providery.json";
+
+    protected $name = "providerY";
+
+    public  function validate($user)
     {
-        $data = file_get_contents("storage/json/providerx.json");
+        return Validator::make($user, [
+            "balance" => 'required',
+            "currency" => "required",
+            "email" => "required",
+            "status" => "required|in:100,200,300",
+            "created_at" => "required",
+            "id" => "required"
+        ]);
     }
 
-    public  function saveImport()
+    public function transfer($user)
     {
-        dd("save Provider y");
-    }
-
-    public  function validate()
-    {
-        dd("validate provider y");
+        return [
+            'id' => $user["id"],
+            'email' => $user["email"],
+            'amount' => $user["balance"],
+            'currency' => $user["currency"],
+            'status' => $this->getStatus($user["status"]),
+            'registeration' => Carbon::createFromFormat("d/m/Y", $user['created_at'])->format('Y-m-d'),
+            'provider' => $this->name   
+        ];
     }
 }
