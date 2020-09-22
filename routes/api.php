@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +20,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+/**
+ * This API for testing only 
+ * the import function should run in 
+ * console
+ */
 Route::get('/test', [ProviderController::class, 'test']);
+
+Route::prefix('v1')->group(function () {
+    Route::get('users', [UserController::class, 'index']);
+});
